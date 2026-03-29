@@ -20,6 +20,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.lms_android.data.models.AttendanceRecord
 import com.example.lms_android.data.models.AttendanceRanking
@@ -84,7 +86,11 @@ fun AttendanceScreen(
                     }
                 }
                 is AttendanceState.Success -> {
-                    AttendanceContent(data = s.data, onBack = onNavigateBack)
+                    AttendanceContent(
+                        data = s.data,
+                        onBack = onNavigateBack,
+                        onRefresh = { viewModel.fetchAttendance() }
+                    )
                 }
             }
         }
@@ -94,8 +100,16 @@ fun AttendanceScreen(
 // ─────────────────────────────────────────────────────────────────────────────
 //  MAIN CONTENT  (all sections in one scrollable column)
 // ─────────────────────────────────────────────────────────────────────────────
+// Tab indices
+private const val TAB_MARK  = 0
+private const val TAB_ANALYTICS = 1
+
 @Composable
-private fun AttendanceContent(data: AttendanceResponse, onBack: () -> Unit) {
+private fun AttendanceContent(
+    data: AttendanceResponse,
+    onBack: () -> Unit,
+    onRefresh: () -> Unit = {}
+) {
     val summary  = data.summary
     val records  = (data.myAttendance ?: emptyList()).sortedByDescending { it.date }
     val rankings = data.rankings ?: emptyList()
@@ -109,9 +123,30 @@ private fun AttendanceContent(data: AttendanceResponse, onBack: () -> Unit) {
     val total      = summary?.total      ?: 0
     val targetPct  = 76
 
+    // Tab + QR scanner state
+    var selectedTab  by remember { mutableIntStateOf(TAB_MARK) }
+    var showQrScanner by remember { mutableStateOf(false) }
+
     // state for "show all" daily log toggle
     var showAllLogs by remember { mutableStateOf(false) }
     val displayedRecords = if (showAllLogs) records else records.take(5)
+
+    // QR scanner full-screen dialog
+    if (showQrScanner) {
+        Dialog(
+            onDismissRequest = { showQrScanner = false },
+            properties = DialogProperties(
+                usePlatformDefaultWidth = false,
+                dismissOnBackPress = true,
+                dismissOnClickOutside = false
+            )
+        ) {
+            QrScannerScreen(onDismiss = {
+                showQrScanner = false
+                onRefresh()          // reload attendance after marking
+            })
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -121,8 +156,18 @@ private fun AttendanceContent(data: AttendanceResponse, onBack: () -> Unit) {
         // ── Top Bar ──────────────────────────────────────────────────────────
         AttendanceTopBar(onBack = onBack)
 
-        // ── Tab Switcher (mark attendance button) ─────────────────────────────
-        AttendanceMarkButton()
+        // ── Tab Switcher ────────────────────────────────────────────────────────
+        AttendanceTabSwitcher(
+            selectedTab    = selectedTab,
+            onTabSelected  = { tab ->
+                if (tab == TAB_MARK) {
+                    // Open QR scanner immediately
+                    showQrScanner = true
+                } else {
+                    selectedTab = tab
+                }
+            }
+        )
 
         Spacer(Modifier.height(20.dp))
 
@@ -182,20 +227,26 @@ private fun AttendanceContent(data: AttendanceResponse, onBack: () -> Unit) {
 
         Spacer(Modifier.height(20.dp))
 
-        // ── Daily Log ─────────────────────────────────────────────────────────
-        DailyLogSection(
-            records         = displayedRecords,
-            totalCount      = records.size,
-            showingAll      = showAllLogs,
-            onToggleShowAll = { showAllLogs = !showAllLogs }
-        )
+        // ── Tab-specific content ─────────────────────────────────────────────
+        if (selectedTab == TAB_ANALYTICS) {
+            // Analytics: bar chart, heatmap, streaks
+            AnalyticsContent(records = records)
+        } else {
+            // Default: Daily Log + Rankings
+            DailyLogSection(
+                records         = displayedRecords,
+                totalCount      = records.size,
+                showingAll      = showAllLogs,
+                onToggleShowAll = { showAllLogs = !showAllLogs }
+            )
 
-        Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(20.dp))
 
-        // ── Rankings ──────────────────────────────────────────────────────────
-        RankingsSection(rankings = rankings)
+            // ── Rankings ──────────────────────────────────────────────────────────
+            RankingsSection(rankings = rankings)
 
-        Spacer(Modifier.height(40.dp))
+            Spacer(Modifier.height(40.dp))
+        }
     }
 }
 
@@ -232,21 +283,27 @@ private fun AttendanceTopBar(onBack: () -> Unit) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  MARK ATTENDANCE BUTTON (replaces tab switcher since rankings are always visible)
+//  TAB SWITCHER  (Mark Attendance | Analytics)
 // ─────────────────────────────────────────────────────────────────────────────
 @Composable
-private fun AttendanceMarkButton() {
+private fun AttendanceTabSwitcher(
+    selectedTab: Int,
+    onTabSelected: (Int) -> Unit
+) {
     Row(
         modifier = Modifier.padding(horizontal = 16.dp).fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+        // ── Mark Attendance (always active gradient, tapping opens scanner) ──
         Box(
             modifier = Modifier
                 .weight(1f)
                 .height(46.dp)
                 .clip(RoundedCornerShape(12.dp))
-                .background(Brush.horizontalGradient(listOf(Color(0xFF6D28D9), Color(0xFF4F46E5))))
-                .clickable { /* TODO: implement mark attendance */ },
+                .background(
+                    Brush.horizontalGradient(listOf(Color(0xFF6D28D9), Color(0xFF4F46E5)))
+                )
+                .clickable { onTabSelected(TAB_MARK) },
             contentAlignment = Alignment.Center
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -257,25 +314,36 @@ private fun AttendanceMarkButton() {
                     fontWeight = FontWeight.Bold, fontSize = 14.sp)
             }
         }
+
+        // ── Analytics tab ─────────────────────────────────────────────────────
+        val isAnalytics = selectedTab == TAB_ANALYTICS
         Box(
             modifier = Modifier
                 .weight(1f)
                 .height(46.dp)
                 .clip(RoundedCornerShape(12.dp))
-                .background(cardBg)
-                .border(1.dp, borderDark, RoundedCornerShape(12.dp)),
+                .background(if (isAnalytics) cardBg else cardBg)
+                .border(
+                    1.dp,
+                    if (isAnalytics) colorPurple.copy(alpha = 0.6f) else borderDark,
+                    RoundedCornerShape(12.dp)
+                )
+                .clickable { onTabSelected(TAB_ANALYTICS) },
             contentAlignment = Alignment.Center
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.BarChart, contentDescription = null,
-                    tint = colorTextSecondary, modifier = Modifier.size(16.dp))
+                    tint = if (isAnalytics) colorPurpleLight else colorTextSecondary,
+                    modifier = Modifier.size(16.dp))
                 Spacer(Modifier.width(8.dp))
-                Text("Analytics", color = colorTextSecondary,
+                Text("Analytics",
+                    color = if (isAnalytics) Color.White else colorTextSecondary,
                     fontWeight = FontWeight.Bold, fontSize = 14.sp)
             }
         }
     }
 }
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  STAT CARD
