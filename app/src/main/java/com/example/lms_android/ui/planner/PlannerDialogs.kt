@@ -38,11 +38,27 @@ fun NewTaskDialog(
     onDismiss: () -> Unit,
     onSubmit: (title: String, desc: String, priority: String, estMins: Int, dueDate: String) -> Unit
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val calendar = Calendar.getInstance()
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var priority by remember { mutableStateOf("Medium Priority") }
+    var priorityExpanded by remember { mutableStateOf(false) }
+    val priorities = listOf("High Priority", "Medium Priority", "Low Priority")
     var estMinutes by remember { mutableStateOf("30") }
     var dueDate by remember { mutableStateOf("") }
+
+    val datePickerDialog = remember {
+        android.app.DatePickerDialog(
+            context,
+            { _, year, month, dayOfMonth ->
+                dueDate = String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month + 1, dayOfMonth)
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        )
+    }
 
     Dialog(onDismissRequest = onDismiss) {
         Box(
@@ -107,7 +123,22 @@ fun NewTaskDialog(
                         Text("Priority", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                         Spacer(Modifier.height(8.dp))
                         // Simplified priority field
-                        CustomTextField(value = priority, onValueChange = { priority = it }, placeholder = "Medium Priority")
+                        Box {
+                            CustomTextField(value = priority, onValueChange = { }, placeholder = "Medium Priority")
+                            Box(modifier = Modifier.matchParentSize().clickable { priorityExpanded = true })
+                            DropdownMenu(
+                                expanded = priorityExpanded,
+                                onDismissRequest = { priorityExpanded = false },
+                                modifier = Modifier.background(InputBackground)
+                            ) {
+                                priorities.forEach { opt ->
+                                    DropdownMenuItem(
+                                        text = { Text(opt, color = Color.White) },
+                                        onClick = { priority = opt; priorityExpanded = false }
+                                    )
+                                }
+                            }
+                        }
                     }
                     Column(modifier = Modifier.weight(1f)) {
                         Text("Est. Minutes", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
@@ -124,9 +155,10 @@ fun NewTaskDialog(
                 Box(modifier = Modifier.fillMaxWidth()) {
                     CustomTextField(
                         value = dueDate,
-                        onValueChange = { dueDate = it },
+                        onValueChange = { },
                         placeholder = "dd-mm-yyyy"
                     )
+                    Box(modifier = Modifier.matchParentSize().clickable { datePickerDialog.show() })
                     Icon(
                         Icons.Default.CalendarToday,
                         contentDescription = null,
@@ -173,8 +205,22 @@ fun AddExamDialog(
     onDismiss: () -> Unit,
     onSubmit: (title: String, date: String, subject: String, colorTag: String) -> Unit
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val calendar = Calendar.getInstance()
     var title by remember { mutableStateOf("") }
     var date by remember { mutableStateOf("") }
+    
+    val datePickerDialog = remember {
+        android.app.DatePickerDialog(
+            context,
+            { _, year, month, dayOfMonth ->
+                date = String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month + 1, dayOfMonth)
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        )
+    }
     var subject by remember { mutableStateOf("") }
     val colors = listOf(Color(0xFF60A5FA), Color(0xFFEF4444), Color(0xFF10B981), Color(0xFFF59E0B), Color(0xFFA78BFA))
     val colorNames = listOf("BLUE", "RED", "GREEN", "ORANGE", "PURPLE")
@@ -224,7 +270,8 @@ fun AddExamDialog(
                         Text("Date", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                         Spacer(Modifier.height(8.dp))
                         Box {
-                            CustomTextField(value = date, onValueChange = { date = it }, placeholder = "dd-mm-yyyy")
+                            CustomTextField(value = date, onValueChange = { }, placeholder = "dd-mm-yyyy")
+                            Box(modifier = Modifier.matchParentSize().clickable { datePickerDialog.show() })
                             Icon(Icons.Default.CalendarToday, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(16.dp).align(Alignment.CenterEnd).offset((-12).dp))
                         }
                     }
