@@ -67,31 +67,37 @@ fun IdCardDialog(
                 .padding(24.dp),
             contentAlignment = Alignment.Center
         ) {
-            // Close Button
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .size(36.dp)
-                    .clip(CircleShape)
-                    .background(Color.White.copy(alpha = 0.15f))
-                    .clickable { onDismiss() },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.White)
-            }
-
             Box(modifier = Modifier.clickable(enabled = false) {}) { // block clicks
-                if (isLoading) {
-                    CircularProgressIndicator(color = Color(0xFF6366F1))
-                } else if (errorMessage != null) {
-                    Text(text = errorMessage!!, color = Color.White)
-                } else {
-                    profile?.let { user ->
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(16.dp))
-                        ) {
+                Column(horizontalAlignment = Alignment.End) {
+                    // Close Button
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clip(CircleShape)
+                            .background(Color.White.copy(alpha = 0.15f))
+                            .clickable { onDismiss() },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.White)
+                    }
+                    
+                    Spacer(Modifier.height(12.dp))
+
+                    if (isLoading) {
+                        Box(modifier = Modifier.fillMaxWidth().height(300.dp), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator(color = Color(0xFF6366F1))
+                        }
+                    } else if (errorMessage != null) {
+                        Box(modifier = Modifier.fillMaxWidth().height(300.dp), contentAlignment = Alignment.Center) {
+                            Text(text = errorMessage!!, color = Color.White)
+                        }
+                    } else {
+                        profile?.let { user ->
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(16.dp))
+                            ) {
                             // ID CARD Surface
                             Box(
                                 modifier = Modifier
@@ -264,6 +270,7 @@ fun IdCardDialog(
                                     Spacer(Modifier.width(4.dp))
                                     Text("Print PDF", fontSize = 13.sp, fontWeight = FontWeight.Bold, maxLines = 1, textAlign = TextAlign.Center)
                                 }
+                            }
                             }
                         }
                     }

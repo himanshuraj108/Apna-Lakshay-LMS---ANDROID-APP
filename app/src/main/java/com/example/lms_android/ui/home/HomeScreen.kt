@@ -37,6 +37,7 @@ fun HomeScreen(
     onNavigateToMySeat: () -> Unit = {},
     onNavigateToFee: () -> Unit = {},
     onNavigateToNotifications: () -> Unit = {},
+    onNavigateToPlanner: () -> Unit = {},
     viewModel: HomeViewModel = viewModel()
 ) {
     val homeState by viewModel.homeState.collectAsState()
@@ -70,7 +71,7 @@ fun HomeScreen(
                 }
                 is HomeState.Success -> {
                     val data = (homeState as HomeState.Success).dashboard
-                    DashboardContent(data, onNavigateToAttendance, onNavigateToMySeat, onNavigateToFee, onNavigateToNotifications)
+                    DashboardContent(data, onNavigateToAttendance, onNavigateToMySeat, onNavigateToFee, onNavigateToNotifications, onNavigateToPlanner)
                 }
             }
         }
@@ -83,7 +84,8 @@ fun DashboardContent(
     onNavigateToAttendance: () -> Unit = {},
     onNavigateToMySeat: () -> Unit = {},
     onNavigateToFee: () -> Unit = {},
-    onNavigateToNotifications: () -> Unit = {}
+    onNavigateToNotifications: () -> Unit = {},
+    onNavigateToPlanner: () -> Unit = {}
 ) {
     var showIdCard by remember { mutableStateOf(false) }
 
@@ -115,7 +117,11 @@ fun DashboardContent(
         )
         Spacer(modifier = Modifier.height(24.dp))
         
-        QuickActionsSection(doubtCredits = data.doubtCredits ?: 0, onShowIdCard = { showIdCard = true })
+        QuickActionsSection(
+            doubtCredits = data.doubtCredits ?: 0, 
+            onShowIdCard = { showIdCard = true },
+            onNavigateToPlanner = onNavigateToPlanner
+        )
         Spacer(modifier = Modifier.height(24.dp))
         
         ResourceCenterSection()
@@ -367,7 +373,11 @@ fun MetricCard(
 
 // Quick Actions Section
 @Composable
-fun QuickActionsSection(doubtCredits: Int, onShowIdCard: () -> Unit = {}) {
+fun QuickActionsSection(
+    doubtCredits: Int, 
+    onShowIdCard: () -> Unit = {},
+    onNavigateToPlanner: () -> Unit = {}
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -393,7 +403,7 @@ fun QuickActionsSection(doubtCredits: Int, onShowIdCard: () -> Unit = {}) {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     QuickActionCard(modifier = Modifier.weight(1f), title = "ID Card", icon = Icons.Default.Badge, iconTint = Color(0xFF60A5FA), bgTint = Color(0xFF1E3A8A), onClick = onShowIdCard)
-                    QuickActionCard(modifier = Modifier.weight(1f), title = "Planner", icon = Icons.Default.MenuBook, iconTint = Color(0xFFF472B6), bgTint = Color(0xFF831843))
+                    QuickActionCard(modifier = Modifier.weight(1f), title = "Planner", icon = Icons.Default.MenuBook, iconTint = Color(0xFFF472B6), bgTint = Color(0xFF831843), onClick = onNavigateToPlanner)
                     QuickActionCard(modifier = Modifier.weight(1f), title = "Discussion", icon = Icons.Default.ChatBubbleOutline, iconTint = Color(0xFFFBBF24), bgTint = Color(0xFF78350F))
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {

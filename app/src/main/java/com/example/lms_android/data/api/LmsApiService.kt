@@ -12,6 +12,10 @@ import com.example.lms_android.data.models.CheckPhoneResponse
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PATCH
+import retrofit2.http.DELETE
+import retrofit2.http.Path
+import com.example.lms_android.data.models.*
 
 interface LmsApiService {
     @POST("auth/login")
@@ -70,4 +74,32 @@ interface LmsApiService {
 
     @retrofit2.http.PUT("student/notifications/{id}/read")
     suspend fun markNotificationRead(@retrofit2.http.Path("id") id: String): com.example.lms_android.data.models.ReadNotificationResponse
+
+    // Study Planner Endpoints
+    @GET("study/tasks")
+    suspend fun getTasks(): TaskResponse
+
+    @POST("study/tasks")
+    suspend fun createTask(@Body request: CreateTaskRequest): SingleTaskResponse
+
+    @PATCH("study/tasks/{id}")
+    suspend fun updateTask(@Path("id") id: String, @Body request: UpdateTaskRequest): SingleTaskResponse
+
+    @DELETE("study/tasks/{id}")
+    suspend fun deleteTask(@Path("id") id: String): BaseResponse
+
+    @GET("study/exams")
+    suspend fun getExams(): ExamResponse
+
+    @POST("study/exams")
+    suspend fun createExam(@Body request: CreateExamRequest): SingleExamResponse
+
+    @DELETE("study/exams/{id}")
+    suspend fun deleteExam(@Path("id") id: String): BaseResponse
+
+    @POST("study/pomodoro")
+    suspend fun logPomodoro(@Body request: LogPomodoroRequest): BaseResponse
+
+    @GET("study/stats")
+    suspend fun getStats(): StatsResponse
 }
