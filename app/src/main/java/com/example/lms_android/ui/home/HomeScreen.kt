@@ -32,7 +32,7 @@ val colorOrange = Color(0xFFE87A5D)
 val colorTextSecondary = Color(0xFF9CA3AF)
 
 @Composable
-fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
+fun HomeScreen(onNavigateToAttendance: () -> Unit = {}, viewModel: HomeViewModel = viewModel()) {
     val homeState by viewModel.homeState.collectAsState()
 
     Scaffold(
@@ -64,7 +64,7 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
                 }
                 is HomeState.Success -> {
                     val data = (homeState as HomeState.Success).dashboard
-                    DashboardContent(data)
+                    DashboardContent(data, onNavigateToAttendance)
                 }
             }
         }
@@ -72,7 +72,7 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
 }
 
 @Composable
-fun DashboardContent(data: DashboardData) {
+fun DashboardContent(data: DashboardData, onNavigateToAttendance: () -> Unit = {}) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -85,7 +85,7 @@ fun DashboardContent(data: DashboardData) {
         ProfileHeaderCard(name = data.studentName ?: TokenManager.getUserName(), active = data.isActive ?: true)
         Spacer(modifier = Modifier.height(16.dp))
         
-        MetricsGrid(data = data)
+        MetricsGrid(data = data, onNavigateToAttendance = onNavigateToAttendance)
         Spacer(modifier = Modifier.height(24.dp))
         
         QuickActionsSection(doubtCredits = data.doubtCredits ?: 0)
@@ -203,7 +203,7 @@ fun ProfileHeaderCard(name: String, active: Boolean) {
 }
 
 @Composable
-fun MetricsGrid(data: DashboardData) {
+fun MetricsGrid(data: DashboardData, onNavigateToAttendance: () -> Unit = {}) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp), modifier = Modifier.fillMaxWidth()) {
             // My Seat
@@ -218,7 +218,7 @@ fun MetricsGrid(data: DashboardData) {
             )
             // Attendance
             MetricCard(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).clickable { onNavigateToAttendance() },
                 title = "ATTENDANCE",
                 icon = Icons.Default.CalendarToday,
                 iconTint = Color(0xFF34D399),
