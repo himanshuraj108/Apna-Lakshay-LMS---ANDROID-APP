@@ -46,9 +46,7 @@ fun AnalyticsContent(records: List<AttendanceRecord>) {
     val totalStudyMins = records.filter { it.status == "present" }.sumOf { it.duration ?: 0 }
 
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
+        modifier = Modifier.fillMaxWidth()
     ) {
         Spacer(Modifier.height(4.dp))
 

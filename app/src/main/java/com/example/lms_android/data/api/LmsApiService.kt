@@ -3,6 +3,7 @@ package com.example.lms_android.data.api
 import com.example.lms_android.data.models.LoginRequest
 import com.example.lms_android.data.models.LoginResponse
 import com.example.lms_android.data.models.AttendanceResponse
+import com.example.lms_android.data.models.MySeatResponse
 import com.example.lms_android.data.models.DashboardResponse
 import com.example.lms_android.data.models.CheckPhoneRequest
 import com.example.lms_android.data.models.CheckPhoneResponse
@@ -46,6 +47,9 @@ interface LmsApiService {
 
     @GET("student/attendance")
     suspend fun getAttendance(): AttendanceResponse
+
+    @GET("student/seat")
+    suspend fun getMySeat(): MySeatResponse
 
     @POST("student/attendance/qr-scan")
     suspend fun markAttendanceByQr(@Body request: com.example.lms_android.data.models.MarkAttendanceRequest): com.example.lms_android.data.models.MarkAttendanceResponse

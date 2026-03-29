@@ -32,7 +32,11 @@ val colorOrange = Color(0xFFE87A5D)
 val colorTextSecondary = Color(0xFF9CA3AF)
 
 @Composable
-fun HomeScreen(onNavigateToAttendance: () -> Unit = {}, viewModel: HomeViewModel = viewModel()) {
+fun HomeScreen(
+    onNavigateToAttendance: () -> Unit = {},
+    onNavigateToMySeat: () -> Unit = {},
+    viewModel: HomeViewModel = viewModel()
+) {
     val homeState by viewModel.homeState.collectAsState()
 
     Scaffold(
@@ -64,7 +68,7 @@ fun HomeScreen(onNavigateToAttendance: () -> Unit = {}, viewModel: HomeViewModel
                 }
                 is HomeState.Success -> {
                     val data = (homeState as HomeState.Success).dashboard
-                    DashboardContent(data, onNavigateToAttendance)
+                    DashboardContent(data, onNavigateToAttendance, onNavigateToMySeat)
                 }
             }
         }
@@ -72,7 +76,11 @@ fun HomeScreen(onNavigateToAttendance: () -> Unit = {}, viewModel: HomeViewModel
 }
 
 @Composable
-fun DashboardContent(data: DashboardData, onNavigateToAttendance: () -> Unit = {}) {
+fun DashboardContent(
+    data: DashboardData,
+    onNavigateToAttendance: () -> Unit = {},
+    onNavigateToMySeat: () -> Unit = {}
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -85,7 +93,7 @@ fun DashboardContent(data: DashboardData, onNavigateToAttendance: () -> Unit = {
         ProfileHeaderCard(name = data.studentName ?: TokenManager.getUserName(), active = data.isActive ?: true)
         Spacer(modifier = Modifier.height(16.dp))
         
-        MetricsGrid(data = data, onNavigateToAttendance = onNavigateToAttendance)
+        MetricsGrid(data = data, onNavigateToAttendance = onNavigateToAttendance, onNavigateToMySeat = onNavigateToMySeat)
         Spacer(modifier = Modifier.height(24.dp))
         
         QuickActionsSection(doubtCredits = data.doubtCredits ?: 0)
@@ -203,12 +211,16 @@ fun ProfileHeaderCard(name: String, active: Boolean) {
 }
 
 @Composable
-fun MetricsGrid(data: DashboardData, onNavigateToAttendance: () -> Unit = {}) {
+fun MetricsGrid(
+    data: DashboardData,
+    onNavigateToAttendance: () -> Unit = {},
+    onNavigateToMySeat: () -> Unit = {}
+) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp), modifier = Modifier.fillMaxWidth()) {
             // My Seat
             MetricCard(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).clickable { onNavigateToMySeat() },
                 title = "MY SEAT",
                 icon = Icons.Default.Chair,
                 iconTint = Color(0xFF60A5FA),
