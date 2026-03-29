@@ -46,4 +46,10 @@ interface LmsApiService {
 
     @GET("student/attendance")
     suspend fun getAttendance(): AttendanceResponse
+
+    @POST("student/attendance/qr-scan")
+    suspend fun markAttendanceByQr(@Body request: com.example.lms_android.data.models.MarkAttendanceRequest): com.example.lms_android.data.models.MarkAttendanceResponse
+
+    @POST("student/attendance/mark-self")
+    suspend fun markSelfAttendance(@Body request: com.example.lms_android.data.models.MarkAttendanceRequest): com.example.lms_android.data.models.MarkAttendanceResponse
 }
