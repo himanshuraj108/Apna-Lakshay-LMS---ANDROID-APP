@@ -64,4 +64,10 @@ interface LmsApiService {
 
     @POST("student/attendance/mark-self")
     suspend fun markSelfAttendance(@Body request: com.example.lms_android.data.models.MarkAttendanceRequest): com.example.lms_android.data.models.MarkAttendanceResponse
+
+    @GET("student/notifications")
+    suspend fun getNotifications(): com.example.lms_android.data.models.NotificationResponse
+
+    @retrofit2.http.PUT("student/notifications/{id}/read")
+    suspend fun markNotificationRead(@retrofit2.http.Path("id") id: String): com.example.lms_android.data.models.ReadNotificationResponse
 }

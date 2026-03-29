@@ -36,6 +36,7 @@ fun HomeScreen(
     onNavigateToAttendance: () -> Unit = {},
     onNavigateToMySeat: () -> Unit = {},
     onNavigateToFee: () -> Unit = {},
+    onNavigateToNotifications: () -> Unit = {},
     viewModel: HomeViewModel = viewModel()
 ) {
     val homeState by viewModel.homeState.collectAsState()
@@ -69,7 +70,7 @@ fun HomeScreen(
                 }
                 is HomeState.Success -> {
                     val data = (homeState as HomeState.Success).dashboard
-                    DashboardContent(data, onNavigateToAttendance, onNavigateToMySeat, onNavigateToFee)
+                    DashboardContent(data, onNavigateToAttendance, onNavigateToMySeat, onNavigateToFee, onNavigateToNotifications)
                 }
             }
         }
@@ -81,7 +82,8 @@ fun DashboardContent(
     data: DashboardData,
     onNavigateToAttendance: () -> Unit = {},
     onNavigateToMySeat: () -> Unit = {},
-    onNavigateToFee: () -> Unit = {}
+    onNavigateToFee: () -> Unit = {},
+    onNavigateToNotifications: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -89,13 +91,22 @@ fun DashboardContent(
             .verticalScroll(rememberScrollState())
             .padding(20.dp)
     ) {
-        DashboardTopBar()
+        DashboardTopBar(
+            unreadCount = data.unreadNotifications ?: 0,
+            onNavigateToNotifications = onNavigateToNotifications
+        )
         Spacer(modifier = Modifier.height(24.dp))
         
         ProfileHeaderCard(name = data.studentName ?: TokenManager.getUserName(), active = data.isActive ?: true)
         Spacer(modifier = Modifier.height(16.dp))
         
-        MetricsGrid(data = data, onNavigateToAttendance = onNavigateToAttendance, onNavigateToMySeat = onNavigateToMySeat, onNavigateToFee = onNavigateToFee)
+        MetricsGrid(
+            data = data,
+            onNavigateToAttendance = onNavigateToAttendance,
+            onNavigateToMySeat = onNavigateToMySeat,
+            onNavigateToFee = onNavigateToFee,
+            onNavigateToNotifications = onNavigateToNotifications
+        )
         Spacer(modifier = Modifier.height(24.dp))
         
         QuickActionsSection(doubtCredits = data.doubtCredits ?: 0)
@@ -110,7 +121,10 @@ fun DashboardContent(
 }
 
 @Composable
-fun DashboardTopBar() {
+fun DashboardTopBar(
+    unreadCount: Int = 0,
+    onNavigateToNotifications: () -> Unit = {}
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -124,7 +138,24 @@ fun DashboardTopBar() {
         
         // Actions
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            Icon(Icons.Default.NotificationsNone, contentDescription = "Notifications", tint = colorTextSecondary, modifier = Modifier.size(24.dp))
+            Box(modifier = Modifier.clickable { onNavigateToNotifications() }) {
+                Icon(
+                    Icons.Default.NotificationsNone,
+                    contentDescription = "Notifications",
+                    tint = colorTextSecondary,
+                    modifier = Modifier.size(24.dp)
+                )
+                if (unreadCount > 0) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .offset(x = 2.dp, y = (-2).dp)
+                            .size(8.dp)
+                            .border(2.dp, bgDark, CircleShape)
+                            .background(Color(0xFFF87171), CircleShape)
+                    )
+                }
+            }
             Box(
                 modifier = Modifier
                     .size(36.dp)
@@ -217,7 +248,8 @@ fun MetricsGrid(
     data: DashboardData,
     onNavigateToAttendance: () -> Unit = {},
     onNavigateToMySeat: () -> Unit = {},
-    onNavigateToFee: () -> Unit = {}
+    onNavigateToFee: () -> Unit = {},
+    onNavigateToNotifications: () -> Unit = {}
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp), modifier = Modifier.fillMaxWidth()) {
@@ -263,7 +295,7 @@ fun MetricsGrid(
             )
             // Alerts
             MetricCard(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).clickable { onNavigateToNotifications() },
                 title = "ALERTS",
                 icon = Icons.Default.NotificationsActive,
                 iconTint = Color(0xFFF472B6),
