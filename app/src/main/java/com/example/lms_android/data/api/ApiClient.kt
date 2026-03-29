@@ -9,8 +9,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 object ApiClient {
-    // 10.0.2.2 is the special IP address to connect to the host's localhost from Android Emulator
-    private const val BASE_URL = "http://10.0.2.2:5000/api/"
+    // Target the remote server instead of localhost
+    private const val BASE_URL = "https://apnalakshaybackend.onrender.com/api/"
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
