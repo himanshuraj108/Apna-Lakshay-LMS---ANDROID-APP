@@ -12,6 +12,7 @@ import com.example.lms_android.ui.auth.RegisterScreen
 import com.example.lms_android.ui.home.HomeScreen
 import com.example.lms_android.ui.myseat.MySeatScreen
 import com.example.lms_android.ui.attendance.AttendanceScreen
+import com.example.lms_android.ui.fee.FeeScreen
 import com.example.lms_android.ui.public.ContactAdminScreen
 import com.example.lms_android.ui.public.PublicSeatsScreen
 
@@ -61,7 +62,8 @@ fun AppNavigation() {
         composable("home") {
             HomeScreen(
                 onNavigateToAttendance = { navController.navigate("attendance") },
-                onNavigateToMySeat = { navController.navigate("my_seat") }
+                onNavigateToMySeat = { navController.navigate("my_seat") },
+                onNavigateToFee = { navController.navigate("fee_status") }
             )
         }
         composable("attendance") {
@@ -86,6 +88,10 @@ fun AppNavigation() {
             MySeatScreen(
                 onNavigateBack = { navController.navigateUp() }
             )
+        }
+        
+        composable("fee_status") {
+            FeeScreen(onNavigateBack = { navController.popBackStack() })
         }
     }
 }

@@ -5,6 +5,8 @@ import com.example.lms_android.data.models.LoginResponse
 import com.example.lms_android.data.models.AttendanceResponse
 import com.example.lms_android.data.models.MySeatResponse
 import com.example.lms_android.data.models.DashboardResponse
+import com.example.lms_android.data.models.FeesResponse
+import com.example.lms_android.data.models.UserProfileResponse
 import com.example.lms_android.data.models.CheckPhoneRequest
 import com.example.lms_android.data.models.CheckPhoneResponse
 import retrofit2.http.Body
@@ -50,6 +52,12 @@ interface LmsApiService {
 
     @GET("student/seat")
     suspend fun getMySeat(): MySeatResponse
+
+    @GET("student/fees")
+    suspend fun getFees(): FeesResponse
+
+    @GET("auth/me")
+    suspend fun getProfile(): UserProfileResponse
 
     @POST("student/attendance/qr-scan")
     suspend fun markAttendanceByQr(@Body request: com.example.lms_android.data.models.MarkAttendanceRequest): com.example.lms_android.data.models.MarkAttendanceResponse

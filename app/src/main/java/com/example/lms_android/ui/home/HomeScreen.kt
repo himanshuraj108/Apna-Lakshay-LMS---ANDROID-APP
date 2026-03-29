@@ -35,6 +35,7 @@ val colorTextSecondary = Color(0xFF9CA3AF)
 fun HomeScreen(
     onNavigateToAttendance: () -> Unit = {},
     onNavigateToMySeat: () -> Unit = {},
+    onNavigateToFee: () -> Unit = {},
     viewModel: HomeViewModel = viewModel()
 ) {
     val homeState by viewModel.homeState.collectAsState()
@@ -68,7 +69,7 @@ fun HomeScreen(
                 }
                 is HomeState.Success -> {
                     val data = (homeState as HomeState.Success).dashboard
-                    DashboardContent(data, onNavigateToAttendance, onNavigateToMySeat)
+                    DashboardContent(data, onNavigateToAttendance, onNavigateToMySeat, onNavigateToFee)
                 }
             }
         }
@@ -79,7 +80,8 @@ fun HomeScreen(
 fun DashboardContent(
     data: DashboardData,
     onNavigateToAttendance: () -> Unit = {},
-    onNavigateToMySeat: () -> Unit = {}
+    onNavigateToMySeat: () -> Unit = {},
+    onNavigateToFee: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -93,7 +95,7 @@ fun DashboardContent(
         ProfileHeaderCard(name = data.studentName ?: TokenManager.getUserName(), active = data.isActive ?: true)
         Spacer(modifier = Modifier.height(16.dp))
         
-        MetricsGrid(data = data, onNavigateToAttendance = onNavigateToAttendance, onNavigateToMySeat = onNavigateToMySeat)
+        MetricsGrid(data = data, onNavigateToAttendance = onNavigateToAttendance, onNavigateToMySeat = onNavigateToMySeat, onNavigateToFee = onNavigateToFee)
         Spacer(modifier = Modifier.height(24.dp))
         
         QuickActionsSection(doubtCredits = data.doubtCredits ?: 0)
@@ -214,7 +216,8 @@ fun ProfileHeaderCard(name: String, active: Boolean) {
 fun MetricsGrid(
     data: DashboardData,
     onNavigateToAttendance: () -> Unit = {},
-    onNavigateToMySeat: () -> Unit = {}
+    onNavigateToMySeat: () -> Unit = {},
+    onNavigateToFee: () -> Unit = {}
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp), modifier = Modifier.fillMaxWidth()) {
@@ -247,7 +250,7 @@ fun MetricsGrid(
             val isPaid = data.fee?.status?.lowercase() == "paid"
             // Fee Status
             MetricCard(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).clickable { onNavigateToFee() },
                 title = "FEE STATUS",
                 icon = Icons.Default.Payments,
                 iconTint = Color(0xFFFBBF24),
