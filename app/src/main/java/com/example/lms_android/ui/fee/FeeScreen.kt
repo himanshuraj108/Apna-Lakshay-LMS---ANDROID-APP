@@ -352,25 +352,49 @@ private fun PaymentRow(fee: FeeRecord, onViewReceipt: () -> Unit) {
             fee.dueDate?.let { due ->
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.CalendarToday, contentDescription = null, tint = FeeSecondary, modifier = Modifier.size(12.dp))
-                    Spacer(Modifier.width(4.dp))
-                    Text("Due ", color = FeeSecondary, fontSize = 11.sp)
-                    Text(formatDate(due), color = FeeSecondary, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                    Spacer(Modifier.width(6.dp))
+                    Text(
+                        text = "Due ${formatDate(due)}",
+                        color = FeeSecondary,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Medium,
+                        maxLines = 1,
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                    )
                 }
             }
+            Spacer(Modifier.height(4.dp))
             if (isPaid) {
                 fee.paidDate?.let { pd ->
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(modifier = Modifier.size(7.dp).background(FeeGreen, androidx.compose.foundation.shape.CircleShape))
-                        Spacer(Modifier.width(5.dp))
-                        Text("Paid ", color = FeeGreen, fontSize = 11.sp)
-                        Text(formatDate(pd), color = FeeGreen, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                        Box(modifier = Modifier.size(12.dp), contentAlignment = Alignment.Center) {
+                            Box(modifier = Modifier.size(6.dp).background(FeeGreen, androidx.compose.foundation.shape.CircleShape))
+                        }
+                        Spacer(Modifier.width(6.dp))
+                        Text(
+                            text = "Paid ${formatDate(pd)}",
+                            color = FeeGreen,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            maxLines = 1,
+                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                        )
                     }
                 }
             } else {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(modifier = Modifier.size(7.dp).background(Color(0xFFF87171), androidx.compose.foundation.shape.CircleShape))
-                    Spacer(Modifier.width(5.dp))
-                    Text(fee.status.uppercase(), color = Color(0xFFF87171), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                    Box(modifier = Modifier.size(12.dp), contentAlignment = Alignment.Center) {
+                        Box(modifier = Modifier.size(6.dp).background(Color(0xFFF87171), androidx.compose.foundation.shape.CircleShape))
+                    }
+                    Spacer(Modifier.width(6.dp))
+                    Text(
+                        text = fee.status.uppercase(),
+                        color = Color(0xFFF87171),
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                    )
                 }
             }
         }
@@ -388,7 +412,7 @@ private fun PaymentRow(fee: FeeRecord, onViewReceipt: () -> Unit) {
                     .padding(horizontal = 14.dp, vertical = 8.dp)
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.Receipt, contentDescription = "Receipt", tint = FeeYellow, modifier = Modifier.size(14.dp))
+                    Icon(Icons.Default.ReceiptLong, contentDescription = "Receipt", tint = FeeYellow, modifier = Modifier.size(14.dp))
                     Spacer(Modifier.width(6.dp))
                     Text("Receipt", color = FeeYellow, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 }
