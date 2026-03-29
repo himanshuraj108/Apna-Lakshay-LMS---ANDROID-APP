@@ -85,6 +85,12 @@ fun DashboardContent(
     onNavigateToFee: () -> Unit = {},
     onNavigateToNotifications: () -> Unit = {}
 ) {
+    var showIdCard by remember { mutableStateOf(false) }
+
+    if (showIdCard) {
+        IdCardDialog(onDismiss = { showIdCard = false })
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -109,7 +115,7 @@ fun DashboardContent(
         )
         Spacer(modifier = Modifier.height(24.dp))
         
-        QuickActionsSection(doubtCredits = data.doubtCredits ?: 0)
+        QuickActionsSection(doubtCredits = data.doubtCredits ?: 0, onShowIdCard = { showIdCard = true })
         Spacer(modifier = Modifier.height(24.dp))
         
         ResourceCenterSection()
@@ -260,7 +266,7 @@ fun MetricsGrid(
                 icon = Icons.Default.Chair,
                 iconTint = Color(0xFF60A5FA),
                 iconBg = Color(0xFF1E3A8A).copy(alpha = 0.3f),
-                mainValue = data.seat?.room ?: "OFFICE",
+                mainValue = data.seat?.number ?: "OFFICE",
                 subValue = "${data.seat?.shift ?: "FULL SHIFT"} Shift"
             )
             // Attendance
@@ -361,7 +367,7 @@ fun MetricCard(
 
 // Quick Actions Section
 @Composable
-fun QuickActionsSection(doubtCredits: Int) {
+fun QuickActionsSection(doubtCredits: Int, onShowIdCard: () -> Unit = {}) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -386,7 +392,7 @@ fun QuickActionsSection(doubtCredits: Int) {
             // Grid
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    QuickActionCard(modifier = Modifier.weight(1f), title = "ID Card", icon = Icons.Default.Badge, iconTint = Color(0xFF60A5FA), bgTint = Color(0xFF1E3A8A))
+                    QuickActionCard(modifier = Modifier.weight(1f), title = "ID Card", icon = Icons.Default.Badge, iconTint = Color(0xFF60A5FA), bgTint = Color(0xFF1E3A8A), onClick = onShowIdCard)
                     QuickActionCard(modifier = Modifier.weight(1f), title = "Planner", icon = Icons.Default.MenuBook, iconTint = Color(0xFFF472B6), bgTint = Color(0xFF831843))
                     QuickActionCard(modifier = Modifier.weight(1f), title = "Discussion", icon = Icons.Default.ChatBubbleOutline, iconTint = Color(0xFFFBBF24), bgTint = Color(0xFF78350F))
                 }
@@ -414,7 +420,8 @@ fun QuickActionCard(
     iconTint: Color,
     bgTint: Color,
     badgeText: String? = null,
-    badgeColor: Color = Color.Transparent
+    badgeColor: Color = Color.Transparent,
+    onClick: () -> Unit = {}
 ) {
     Box(
         modifier = modifier
@@ -422,7 +429,7 @@ fun QuickActionCard(
             .border(1.dp, borderDark, RoundedCornerShape(16.dp))
             .clip(RoundedCornerShape(16.dp))
             .background(Brush.linearGradient(listOf(Color(0xFF151821), bgTint.copy(alpha=0.15f))))
-            .clickable { /* TODO Action */ }
+            .clickable { onClick() }
     ) {
         // Watermark icon
         Icon(

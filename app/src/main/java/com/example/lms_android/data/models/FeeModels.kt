@@ -34,5 +34,8 @@ data class UserProfile(
     val shift: String?,
     val aadharNo: String? = null,
     val dob: String? = null,
-    val lockerNo: String? = null
+    val lockerNo: String? = null,
+    val lmsId: String? = null,
+    val createdAt: String? = null,
+    val status: String? = null
 )
