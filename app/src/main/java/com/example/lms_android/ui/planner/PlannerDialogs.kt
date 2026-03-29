@@ -177,7 +177,12 @@ fun NewTaskDialog(
                     Button(
                         onClick = {
                             val mins = estMinutes.toIntOrNull() ?: 30
-                            onSubmit(title, description, priority, mins, dueDate.ifEmpty { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()) })
+                            val mappedPriority = when(priority) {
+                                "High Priority" -> "high"
+                                "Low Priority" -> "low"
+                                else -> "medium"
+                            }
+                            onSubmit(title, description, mappedPriority, mins, dueDate.ifEmpty { String.format(Locale.getDefault(), "%04d-%02d-%02d", calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH)) })
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = PrimaryPurple),
                         shape = RoundedCornerShape(8.dp),
@@ -203,7 +208,7 @@ fun NewTaskDialog(
 @Composable
 fun AddExamDialog(
     onDismiss: () -> Unit,
-    onSubmit: (title: String, date: String, subject: String, colorTag: String) -> Unit
+    onSubmit: (title: String, date: String, subject: String, color: String) -> Unit
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val calendar = Calendar.getInstance()
