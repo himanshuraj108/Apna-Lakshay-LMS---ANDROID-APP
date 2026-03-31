@@ -38,6 +38,7 @@ fun HomeScreen(
     onNavigateToFee: () -> Unit = {},
     onNavigateToNotifications: () -> Unit = {},
     onNavigateToPlanner: () -> Unit = {},
+    onNavigateToChat: () -> Unit = {},
     viewModel: HomeViewModel = viewModel()
 ) {
     val homeState by viewModel.homeState.collectAsState()
@@ -71,7 +72,7 @@ fun HomeScreen(
                 }
                 is HomeState.Success -> {
                     val data = (homeState as HomeState.Success).dashboard
-                    DashboardContent(data, onNavigateToAttendance, onNavigateToMySeat, onNavigateToFee, onNavigateToNotifications, onNavigateToPlanner)
+                    DashboardContent(data, onNavigateToAttendance, onNavigateToMySeat, onNavigateToFee, onNavigateToNotifications, onNavigateToPlanner, onNavigateToChat)
                 }
             }
         }
@@ -85,7 +86,8 @@ fun DashboardContent(
     onNavigateToMySeat: () -> Unit = {},
     onNavigateToFee: () -> Unit = {},
     onNavigateToNotifications: () -> Unit = {},
-    onNavigateToPlanner: () -> Unit = {}
+    onNavigateToPlanner: () -> Unit = {},
+    onNavigateToChat: () -> Unit = {}
 ) {
     var showIdCard by remember { mutableStateOf(false) }
 
@@ -118,9 +120,10 @@ fun DashboardContent(
         Spacer(modifier = Modifier.height(24.dp))
         
         QuickActionsSection(
-            doubtCredits = data.doubtCredits ?: 0, 
+            doubtCredits = data.doubtCredits ?: 0,
             onShowIdCard = { showIdCard = true },
-            onNavigateToPlanner = onNavigateToPlanner
+            onNavigateToPlanner = onNavigateToPlanner,
+            onNavigateToChat = onNavigateToChat
         )
         Spacer(modifier = Modifier.height(24.dp))
         
@@ -374,9 +377,10 @@ fun MetricCard(
 // Quick Actions Section
 @Composable
 fun QuickActionsSection(
-    doubtCredits: Int, 
+    doubtCredits: Int,
     onShowIdCard: () -> Unit = {},
-    onNavigateToPlanner: () -> Unit = {}
+    onNavigateToPlanner: () -> Unit = {},
+    onNavigateToChat: () -> Unit = {}
 ) {
     Box(
         modifier = Modifier
@@ -404,7 +408,7 @@ fun QuickActionsSection(
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     QuickActionCard(modifier = Modifier.weight(1f), title = "ID Card", icon = Icons.Default.Badge, iconTint = Color(0xFF60A5FA), bgTint = Color(0xFF1E3A8A), onClick = onShowIdCard)
                     QuickActionCard(modifier = Modifier.weight(1f), title = "Planner", icon = Icons.Default.MenuBook, iconTint = Color(0xFFF472B6), bgTint = Color(0xFF831843), onClick = onNavigateToPlanner)
-                    QuickActionCard(modifier = Modifier.weight(1f), title = "Discussion", icon = Icons.Default.ChatBubbleOutline, iconTint = Color(0xFFFBBF24), bgTint = Color(0xFF78350F))
+                    QuickActionCard(modifier = Modifier.weight(1f), title = "Discussion", icon = Icons.Default.ChatBubbleOutline, iconTint = Color(0xFFFBBF24), bgTint = Color(0xFF78350F), onClick = onNavigateToChat)
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     QuickActionCard(modifier = Modifier.weight(1f), title = "Newspaper", icon = Icons.Default.Article, iconTint = Color(0xFFA78BFA), bgTint = Color(0xFF4C1D95))

@@ -44,8 +44,12 @@ class AuthViewModel : ViewModel() {
                     ?.substringAfter("\"message\":\"")?.substringBefore("\"")
                     ?: "Server Error: ${e.code()}"
                 _authState.value = AuthState.Error(message)
+            } catch (e: java.net.SocketTimeoutException) {
+                _authState.value = AuthState.Error("Server is starting up, please try again in a moment...")
+            } catch (e: java.net.ConnectException) {
+                _authState.value = AuthState.Error("Cannot reach server. Check your internet connection.")
             } catch (e: Exception) {
-                _authState.value = AuthState.Error("Network Error. Is your server running?")
+                _authState.value = AuthState.Error("Network error. Please check your connection and retry.")
             }
         }
     }

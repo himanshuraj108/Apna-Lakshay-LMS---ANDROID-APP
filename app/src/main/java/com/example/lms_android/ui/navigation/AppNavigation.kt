@@ -17,6 +17,7 @@ import com.example.lms_android.ui.notifications.NotificationsScreen
 import com.example.lms_android.ui.public.ContactAdminScreen
 import com.example.lms_android.ui.public.PublicSeatsScreen
 import com.example.lms_android.ui.planner.PlannerScreen
+import com.example.lms_android.ui.chat.ChatScreen
 
 @Composable
 fun AppNavigation() {
@@ -67,7 +68,8 @@ fun AppNavigation() {
                 onNavigateToMySeat = { navController.navigate("my_seat") },
                 onNavigateToFee = { navController.navigate("fee_status") },
                 onNavigateToNotifications = { navController.navigate("notifications") },
-                onNavigateToPlanner = { navController.navigate("planner") }
+                onNavigateToPlanner = { navController.navigate("planner") },
+                onNavigateToChat = { navController.navigate("chat") }
             )
         }
         composable("attendance") {
@@ -104,6 +106,9 @@ fun AppNavigation() {
         
         composable("planner") {
             PlannerScreen(onNavigateBack = { navController.popBackStack() })
+        }
+        composable("chat") {
+            ChatScreen(onNavigateBack = { navController.popBackStack() })
         }
     }
 }

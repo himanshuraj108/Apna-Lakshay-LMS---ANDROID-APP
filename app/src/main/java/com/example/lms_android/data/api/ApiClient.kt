@@ -24,11 +24,27 @@ object ApiClient {
         chain.proceed(requestBuilder.build())
     }
 
+    // Retry up to 2 times on network failure (helps with Render cold-start)
+    private val retryInterceptor = Interceptor { chain ->
+        val request = chain.request()
+        var response = runCatching { chain.proceed(request) }
+        var tryCount = 0
+        while (response.isFailure && tryCount < 2) {
+            tryCount++
+            Thread.sleep(1000L * tryCount)
+            response = runCatching { chain.proceed(request) }
+        }
+        response.getOrThrow()
+    }
+
     private val okHttpClient = OkHttpClient.Builder()
         .addInterceptor(authInterceptor)
+        .addInterceptor(retryInterceptor)
         .addInterceptor(loggingInterceptor)
-        .connectTimeout(30, TimeUnit.SECONDS)
-        .readTimeout(30, TimeUnit.SECONDS)
+        // Extended timeouts for Render free-tier cold start (can take 50-90s)
+        .connectTimeout(90, TimeUnit.SECONDS)
+        .readTimeout(90, TimeUnit.SECONDS)
+        .writeTimeout(90, TimeUnit.SECONDS)
         .build()
 
     private val retrofit = Retrofit.Builder()
